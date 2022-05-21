@@ -1,6 +1,3 @@
-from numpy import number
-
-
 def greeter(func):
     def wrapper(*args):
         names = func(*args)
@@ -40,7 +37,53 @@ def sums_of_str_elements_are_equal(func):
 
 
 def format_output(*required_keys):
-    pass
+    new_dict = {}
+    REQUIRED_KEYS = []
+    for required_key in required_keys:
+        new_dict[required_key] = False
+        if "__" in required_key:
+            required_key = required_key.split("__")
+            for list_key in required_key:
+              REQUIRED_KEYS.append(list_key)
+        else:
+            REQUIRED_KEYS.append(required_key)
+    def wrapper_outer(func):
+        def wrapper_inner(*args):
+            nonlocal new_dict
+            dict_of_parameters = func(*args)
+
+            for key in REQUIRED_KEYS:
+                if not key in dict_of_parameters.keys():
+                    raise ValueError
+
+            for required_key in new_dict.keys():
+                for key, value in dict_of_parameters.items():
+                    if key in required_key:
+                        if not new_dict[required_key]:
+                            if not value:
+                                new_dict[required_key] = "Empty value"
+                            else:    
+                                if f"_{key}_" in required_key:
+                                    new_dict[required_key] = new_dict[required_key] = " " + value + " "
+                                elif f"{key}_" in required_key:
+                                    new_dict[required_key] = value + " "
+                                elif f"_{key}" in required_key:
+                                    new_dict[required_key] = " " + value
+                                else:
+                                    new_dict[required_key] = value
+                        else:
+                            if f"_{key}_" in required_key:
+                                new_dict[required_key] = new_dict[required_key].replace(' ', f' {value} ')
+                            elif f"{key}_" in required_key:
+                                new_dict[required_key] = value + new_dict[required_key]
+                            else:
+                                new_dict[required_key] = new_dict[required_key] + value
+                                
+            return new_dict
+        return wrapper_inner
+    return wrapper_outer
+        
+
 
 
 def add_method_to_instance(klass):
