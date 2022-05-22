@@ -4,7 +4,6 @@ def greeter(func):
         return "Aloha " + names.title()
     return wrapper
 
-
 def sums_of_str_elements_are_equal(func):
     def wrapper(*args):
         numbers = func(*args).split()
@@ -34,7 +33,6 @@ def sums_of_str_elements_are_equal(func):
             else:
                 return str(total_values[0]) + " != " + str(total_values[1])
     return wrapper
-
 
 def format_output(*required_keys):
     new_dict = {}
@@ -83,8 +81,12 @@ def format_output(*required_keys):
         return wrapper_inner
     return wrapper_outer
         
-
-
-
 def add_method_to_instance(klass):
-    pass
+    def decorator(func):
+        def inner_decorator(*args, **kwargs):
+            return func()
+
+        setattr(klass, func.__name__, inner_decorator)
+        return inner_decorator
+        
+    return decorator
